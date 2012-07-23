@@ -1,0 +1,378 @@
+<?php
+function twitter_geo_block_info() {
+  $blocks['twitter-geo-search-block'] = array(
+    'info' => t('Twitter geo seach'),
+  );
+  return $blocks;
+}
+
+function twitter_geo_block_view($delta = '') {
+  $block = array();
+  $items = array();
+  switch ($delta) {
+    case 'twitter-geo-search-block':
+      $block['subject'] = t('Search tweets around you');
+      $form = drupal_get_form('twitter_geo_search_form');
+      $block['content'] = drupal_render($form);
+      break;
+  }
+  return $block;
+}
+
+function twitter_geo_menu(){
+  $items['twitter_geo/search'] = array(
+    'title' => 'Search result',
+    'page callback' => 'twitter_geo_search_page',
+//    'page arguments' => array(2),
+    'access arguments' => array('use twitter geo search'),
+//    'load arguments' => array('%map', '%index'),
+//    'weight' => 10,
+//    'file' => 'twitter.pages.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['twitter_geo'] = array(
+    'title' => 'Twitter geo search',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('twitter_geo_search_form'),
+    'access arguments' => array('use twitter geo search'),
+//    'load arguments' => array('%map', '%index'),
+//    'weight' => 10,
+//    'file' => 'twitter.pages.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+function twitter_geo_permission() {
+  return array(
+    'use twitter geo search' => array(
+      'title' => t('Use twitter geo search'),
+    ),
+  );
+}
+function twitter_geo_theme($existing, $type, $theme, $path) {
+  return array(
+    'tweet' => array(
+      'variables' => array('tweet' => ''),
+      'function' => 'theme_tweet',
+    )
+  );
+}
+
+function theme_tweet($variables) {
+  //$url = drupal_get_destination();
+  $filrer = new stdClass();
+  $filter->settings = array(
+    'filter_url_length' => 140,
+  );
+  $tweet = _filter_url($variables['tweet']['text'], $filter);
+  $tweet = preg_replace('/(^|[^a-z0-9_])@([a-z0-9_]+)/i', '$1<a href="http://twitter.com/$2" target="_blank">@$2</a>', $tweet);
+  $tweet = preg_replace('/(^|\s)#(\w*[a-zA-Z_]+\w*)/', '\1#<a href="http://search.twitter.com/search?q=%23\2" target="_blank">\2</a>', $tweet);
+  $output = '';
+  $output .= '<div class="tweet stream-item">';
+  $output .= '<div class="content">';
+  $output .= '<div class="stream-item-header">';
+  $output .= '<small class="time">' . l($variables['tweet']['created_at'], 'http://twitter.com/' . $variables['tweet']['from_user'] . '/status/' . $variables['tweet']['id']) . '</small>';
+  $user = theme_image(array('path' => $variables['tweet']['profile_image_url'], 'attributes' => array('class' => 'avatar'))) . '<strong>' . $variables['tweet']['from_user_name'] . '</strong>' . ' <span class="username js-action-profile-name"><s>@</s><b>' . $variables['tweet']['from_user'] . '</b></span>';
+  $output .= l($user, 'http://twitter.com/' . $variables['tweet']['from_user'], array('attributes' => array('target'=>'_blank'), 'html' => TRUE));
+  $output .= '<p class="js-tweet-text">' . $tweet . '</p>';
+  if (isset($variables['tweet']['location'] )){
+    $output .= '<div>Location: ' . $variables['tweet']['location'] . '</div>';
+  }
+  $output .= '</div>';
+  $output .= '</div>';
+  $output .= '</div>';
+  return $output;
+}
+
+function twitter_geo_search($params = array()) {
+//  $params['rpp'] = '50'; 
+  $params['result_type'] = 'recent';
+  $params['page'] = isset($_GET['page']) ? $_GET['page'] : 1;
+  $headers['Content-type'] = 'application/x-www-form-urlencoded';
+  $url = "http://search.twitter.com/search.json";
+  $method = 'GET';
+  $data = '';
+  if ($method == 'GET') {
+    $url .= '?' . drupal_http_build_query($params);
+  }
+  else {
+    $data = drupal_http_build_query($params, '', '&');
+  }
+  $response = drupal_http_request($url, array('headers' => $headers, 'method' => $method, 'data' => $data));
+  $length = strlen(PHP_INT_MAX);
+  $json = preg_replace('/"(id|in_reply_to_status_id)":(\d{' . $length . ',})/', '"\1":"\2"', $response->data);
+  $data = json_decode($json, TRUE);
+  $items = array();
+  if (isset($data['results'])) {
+    foreach ($data['results'] as $result) {
+      $items[] = array('data' => theme_tweet(array('tweet' => $result)));
+    }
+  }
+  //dpm($data);
+  //dpm($_GET['q'] . '?' . drupal_http_build_query(array_merge($params, array('page' => $data['page'] + 1))));
+  $output = theme('item_list', array('items' => $items), $title = 'Search results', $type = 'ol');
+  $output .= '<div class="item-list"><ul class="pager">';
+  
+  if (isset($data['previous_page'])) {
+    $query = array_merge($_GET, array('page' => $data['page'] - 1));
+    unset($query['q']);
+    $link = url($_GET['q'], array('query' => $query));
+    $output .= '<li class="pager-previous"><a href="' . $link . '">' . t('‹ previous') . '</a></li>';
+  }
+  if (isset($data['page'])){
+    $output .= ' [ ' . $data['page'] . ' ] ';
+  }
+  if (isset($data['next_page'])) {
+    $query = array_merge($_GET, array('page' => $data['page'] + 1));
+    unset($query['q']);
+    $link = url($_GET['q'], array('query' => $query));
+    $output .= '<li class="pager-next"><a href="' . $link . '">' . t('next >') . '</a></li>';
+  }
+  $output .= '</ul></div>';
+  drupal_add_css(drupal_get_path('module', 'twitter_geo') . '/twitter.css');
+  return $output;
+}
+
+function twitter_geo_search_form($form, &$form_state) {
+  $form['twitter_geo'] = array(
+    '#type' => 'fieldset', 
+    '#title' => t('Search tweets around you'),
+  );
+  $form['twitter_geo']['term'] = array(
+    '#type' => 'textfield', 
+    '#title' => t('Keywords'),
+    '#default_value' => isset($_GET['term']) ? $_GET['term'] : '',
+    //'#weight' => 0,
+    //'#size' => 60, 
+    //'#maxlength' => 128, 
+    //'#required' => TRUE,
+  );
+  $form['twitter_geo']['submit'] = array(
+    '#type' => 'submit' ,
+    '#value' => t('Search'),
+    '#name' => '',
+    //'#wieght' => 1,
+  );
+
+  $form['twitter_geo']['lang'] = array(
+    '#type' => 'select',
+    '#title' => t('Lanuage'),
+    '#options' => array(
+      '' => t('<All>'),
+      'en' => t('English'),
+      'zh' => t('Chinese'),
+    ),
+    '#default_value' => isset($_GET['lang']) ? $_GET['lang'] : '0',
+    //'#description' => t('Select language'),
+  );
+  $lat = isset($_SESSION['ip_geoloc']['location']['latitude']) ? $_SESSION['ip_geoloc']['location']['latitude'] : (isset($_SESSION['smart_ip']['location']['latitude']) ? $_SESSION['smart_ip']['location']['latitude'] : '0');
+  $lon = isset($_SESSION['ip_geoloc']['location']['longitude']) ? $_SESSION['ip_geoloc']['location']['longitude'] : (isset($_SESSION['smart_ip']['location']['longitude']) ? $_SESSION['smart_ip']['location']['longitude'] : '0');
+
+  $form['twitter_geo']['lat'] = array(
+    '#type' => 'hidden', 
+    '#default_value' => isset($_GET['lat']) ? $_GET['lat'] : $lat,
+//    '#size' => 10, 
+//    '#title' => t('Latitude'), 
+//    '#description' => t('Mile(s)'),
+  );
+  $form['twitter_geo']['lon'] = array(
+    '#type' => 'hidden', 
+    '#default_value' => isset($_GET['lon']) ? $_GET['lon'] : $lon,
+//    '#size' => 10,
+//    '#title' => t('Longitude'), 
+//    '#description' => t('Mile(s)'),
+  );
+  $form['twitter_geo']['zoom'] = array(
+    '#type' => 'hidden',
+    '#value' => 9,
+  );
+
+  $form['twitter_geo']['distance'] = array(
+    '#type' => 'select',
+    '#required' => TRUE,
+    '#options' => array(
+      5 => t('5'),
+      10 => t('10'),
+      15 => t('15'),
+      20 => t('20'),
+    ),
+    '#default_value' => isset($_GET['distance']) ? $_GET['distance'] : 5,
+    '#title' => t('Radius (Miles)'), 
+    //'#description' => t('Mile(s)'),
+    //'#size' => 10,
+  );
+  /*
+  $div_id = 'twitter_geo_google_map';
+  $map_style = 'height:300px';
+  $map_placeholder = "<div id='$div_id'" . (empty($map_style) ? '' : " style='$map_style'") . '>Set postion</div>';
+  */
+  $map_placeholder = '<div class="twitter_geo_map">' . t('Drag the map to aim.');
+  $map = twitter_geo_map(isset($_GET['lat']) ? $_GET['lat'] : $lat, isset($_GET['lon']) ? $_GET['lon'] : $lon); 
+  $map_placeholder .= openlayers_render_map($map);
+//  $map_placeholder .= openlayers_render_map('twitter_geo');
+
+//  $map_placeholder .= '<div class="openlayers-ui-style-preview-top"></div>';
+//  $map_placeholder .= '<div class="openlayers-ui-style-preview-left"></div>';
+  $map_placeholder .= '</div>';
+
+  $form['twitter_geo']['map'] = array(
+    '#markup' => $map_placeholder,
+  );
+
+  $form['#method'] = 'get';
+  $form['#action'] = url('twitter_geo/search');
+  $form['#token'] = false;
+  $form['#after_build'] = array('twiter_geo_search_form_clean');
+  /*
+  $js_options = array('group' => JS_LIBRARY);
+  drupal_add_js(IP_GEOLOC_GEO_JS, $js_options);
+  drupal_add_js(IP_GEOLOC_GOOGLE_MAPS_GPS, $js_options);
+
+  drupal_add_js(array('twitter_geo_google_map_div' => $div_id), 'setting');
+  */
+  drupal_add_js(drupal_get_path('module', 'twitter_geo') . '/twitter_geo.js', array('scope' => 'footer'));
+//  drupal_add_css(drupal_get_path('module', 'twitter_geo') . '/twitter.css');
+  return $form;
+}
+
+function twiter_geo_search_form_clean($form){
+  unset($form['#build_id'], $form['form_build_id'], $form['form_id']);
+  return $form;
+}
+
+function twitter_geo_search_form_submit($form, &$form_state) {
+  $q = $form_state['values']['twitter_geo_q'];
+  $distance = $form_state['values']['twitter_geo_distance'] . 'mi';
+  $lang = $form_state['values']['twitter_geo_lang'];
+//  drupal_( );
+}
+
+function twitter_geo_search_page() {
+  drupal_set_title(t('Search results'));
+  $results = '';
+  if (isset($_GET['term'])) {
+    $keys = ($_GET['term']);
+    $keys = trim($keys);
+    // Also try to pull search keywords out of the $_REQUEST variable to
+    // support old GET format of searches for existing links.
+    if (!$keys && !empty($_REQUEST['keys'])) {
+      $keys = trim($_REQUEST['keys']);
+    }
+    if (isset( $distance)) {
+      $distance = $_GET['distance'] . 'mi';
+    }
+    else {
+       $distance = '5mi';
+    }
+    $latitude = $_GET['lat'];
+    $longitude = $_GET['lon'];
+    $geocode = "$latitude,$longitude,$distance";
+    $results = twitter_geo_search($params = array('q' => $keys, 'lang' => isset($_GET['lang']) ? $_GET['lang'] : '', 'geocode' => $geocode));
+  }
+    //$build['search_form'] = drupal_get_form('twitter_geo_search_form', NULL, $keys);
+ //$build['search_results'] = $results;
+  return $results;
+}
+
+function twitter_geo_map($latitude, $longitude) {
+  $latitude = isset($_GET['latitude']) ? $_GET['latitude'] : (isset($_SESSION['ip_geoloc']['location']['latitude']) ? $_SESSION['ip_geoloc']['location']['latitude'] : (isset($_SESSION['smart_ip']['location']['latitude']) ? $_SESSION['smart_ip']['location']['latitude'] : '0'));
+  $longitude = isset($_GET['longitude']) ? $_GET['longitude'] : (isset($_SESSION['ip_geoloc']['location']['longitude']) ? $_SESSION['ip_geoloc']['location']['longitude'] : (isset($_SESSION['smart_ip']['location']['longitude']) ? $_SESSION['smart_ip']['location']['longitude'] : '0'));
+//  dpm($latitude . ', '. $longitude);
+  $items = array();
+  $openlayers_maps = new stdClass();
+  $openlayers_maps->disabled = FALSE; /* Edit this to true to make a default openlayers_maps disabled initially */
+  $openlayers_maps->api_version = 1;
+  $openlayers_maps->name = 'twitter_geo';
+  $openlayers_maps->title = 'Twitter Geo Map';
+  $openlayers_maps->description = 'Twitter Geo';
+  $openlayers_maps->data = array(
+    'width' => 'auto',
+    'height' => '400px',
+    'image_path' => drupal_get_path('module', 'openlayers') . '/themes/default_dark/img/',
+    'css_path' => drupal_get_path('module', 'openlayers') . '/themes/default_dark/style.css',
+    'proxy_host' => '',
+    'hide_empty_map' => array(),
+    'center' => array(
+      'initial' => array(
+        'centerpoint' => $longitude . ', ' . $latitude,
+        'zoom' => '9',
+      ),
+      'restrict' => array(
+        'restrictextent' => 0,
+        'restrictedExtent' => '',
+      ),
+    ),
+    'behaviors' => array(
+      'openlayers_behavior_argparser' => array(
+        'anchor' => 0,
+      ),
+/*      'openlayers_behavior_geolocate' => array(
+        'bind' => '0',
+        'zoom_level' => '9',
+        'watch' => '1',
+      ),*/
+      'openlayers_behavior_keyboarddefaults' => array(),
+      'openlayers_behavior_attribution' => array(
+        'seperator' => '',
+      ),
+      'openlayers_behavior_layerswitcher' => array(
+        'ascending' => 1,
+        'roundedCorner' => 1,
+        'roundedCornerColor' => '#222222',
+        'maximizeDefault' => 0,
+      ),
+      'openlayers_behavior_navigation' => array(
+        'zoomWheelEnabled' => 1,
+        'zoomBoxEnabled' => 1,
+        'documentDrag' => 0,
+      ),
+      'openlayers_behavior_panzoombar' => array(
+        'zoomWorldIcon' => 0,
+        'panIcons' => 1,
+      ),
+    ),
+    'default_layer' => 'mapquest_osm',
+    'layers' => array(
+      'mapquest_osm' => 'mapquest_osm',
+      'osm_mapnik' => 'osm_mapnik',
+      'ip_geoloc_visitor_marker_layer' => 'ip_geoloc_visitor_marker_layer',
+    ),
+    'layer_weight' => array(
+      'ip_geoloc_visitor_marker_layer' => '0',
+      'openlayers_geojson_picture_this' => '0',
+      'ip_geoloc_marker_layer' => '0',
+    ),
+    'layer_styles' => array(
+      'ip_geoloc_marker_layer' => '0',
+      'openlayers_geojson_picture_this' => '0',
+      'ip_geoloc_visitor_marker_layer' => 'default_marker_black_small',
+    ),
+    'layer_styles_select' => array(
+      'ip_geoloc_marker_layer' => '0',
+      'openlayers_geojson_picture_this' => '0',
+      'ip_geoloc_visitor_marker_layer' => '0',
+    ),
+    'layer_activated' => array(
+      'ip_geoloc_visitor_marker_layer' => 'ip_geoloc_visitor_marker_layer',
+      'ip_geoloc_marker_layer' => 0,
+      'openlayers_geojson_picture_this' => 0,
+    ),
+    'layer_switcher' => array(
+      'ip_geoloc_visitor_marker_layer' => 0,
+      'ip_geoloc_marker_layer' => 0,
+      'openlayers_geojson_picture_this' => 0,
+    ),
+    'projection' => '900913',
+    'displayProjection' => '4326',
+    'styles' => array(
+      'default' => 'default',
+      'select' => 'default_select',
+      'temporary' => 'default',
+    ),
+    'map_name' => 'twitter_geo',
+  );
+  return $openlayers_maps;
+}
+
