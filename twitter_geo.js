@@ -32,7 +32,7 @@ Drupal.behaviors.twitter_geo = {
     }
   },
   'refresh': function(data) {
-    console.log(data);
+    //console.log(data);
     data.openlayers.layers[4].removeAllFeatures();
     center = data.openlayers.getCenter();
     var circle = OpenLayers.Geometry.Polygon.createRegularPolygon(

@@ -68,7 +68,7 @@ function theme_tweet($variables) {
   );
   $tweet = _filter_url($variables['tweet']['text'], $filter);
   $tweet = preg_replace('/(^|[^a-z0-9_])@([a-z0-9_]+)/i', '$1<a href="http://twitter.com/$2" target="_blank">@$2</a>', $tweet);
-  $tweet = preg_replace('/(^|\s)#(\w*[a-zA-Z_]+\w*)/', '\1#<a href="http://search.twitter.com/search?q=%23\2" target="_blank">\2</a>', $tweet);
+  $tweet = preg_replace('/(^|\s)#(\w*[a-zA-Z_]+\w*)/', '\1<a href="http://search.twitter.com/search?q=%23\2" target="_blank">#\2</a>', $tweet);
   $output = '';
   $output .= '<div class="tweet stream-item">';
   $output .= '<div class="content">';
@@ -112,7 +112,7 @@ function twitter_geo_search($params = array()) {
   }
   //dpm($data);
   //dpm($_GET['q'] . '?' . drupal_http_build_query(array_merge($params, array('page' => $data['page'] + 1))));
-  $output = theme('item_list', array('items' => $items), $title = 'Search results', $type = 'ol');
+  $output = theme('item_list', array('items' => $items, 'title' => 'Search results', 'type' => 'ol', 'attributes' => array('class' => 'twitter')));
   $output .= '<div class="item-list"><ul class="pager">';
   
   if (isset($data['previous_page'])) {
