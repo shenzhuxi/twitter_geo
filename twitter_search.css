@@ -4,17 +4,14 @@
 
 #twitter-geo-search-form .form-submit {
   display: inline;
-  clear: right;
 }
 
 #twitter-geo-search-form .form-item-lang {
-  clear: both;
   display: inline;
-  float: left;
 }
 
 #twitter-geo-search-form .form-item-distance {
-
+  display: inline;
 }
 
 label[for=edit-lang], label[for=edit-distance] {

@@ -140,7 +140,13 @@ function twitter_geo_search_form($form, &$form_state) {
     '#type' => 'fieldset', 
     '#title' => t('Search tweets around you'),
   );
-  $form['twitter_geo']['term'] = array(
+  $form['twitter_geo']['wrapper'] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'class' => array('search-bar'),
+    ),
+  );
+  $form['twitter_geo']['wrapper']['term'] = array(
     '#type' => 'textfield', 
     //'#title' => t('Keywords'),
     '#default_value' => isset($_GET['term']) ? $_GET['term'] : '',
@@ -149,7 +155,7 @@ function twitter_geo_search_form($form, &$form_state) {
     //'#maxlength' => 128, 
     //'#required' => TRUE,
   );
-  $form['twitter_geo']['submit'] = array(
+  $form['twitter_geo']['wrapper']['submit'] = array(
     '#type' => 'submit' ,
     '#value' => t('Search'),
     '#name' => '',
