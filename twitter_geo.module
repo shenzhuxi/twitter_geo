@@ -142,7 +142,7 @@ function twitter_geo_search_form($form, &$form_state) {
   );
   $form['twitter_geo']['term'] = array(
     '#type' => 'textfield', 
-    '#title' => t('Keywords'),
+    //'#title' => t('Keywords'),
     '#default_value' => isset($_GET['term']) ? $_GET['term'] : '',
     //'#weight' => 0,
     //'#size' => 60, 
@@ -214,14 +214,13 @@ function twitter_geo_search_form($form, &$form_state) {
   $map_style = 'height:300px';
   $map_placeholder = "<div id='$div_id'" . (empty($map_style) ? '' : " style='$map_style'") . '>Set postion</div>';
   */
-  $map_placeholder = '<div class="twitter_geo_map">' . t('Drag the map to aim.');
+  $map_placeholder = '<div class="twitter_geo_map">';
   $map = twitter_geo_map(isset($_GET['lat']) ? $_GET['lat'] : $lat, isset($_GET['lon']) ? $_GET['lon'] : $lon); 
   $map_placeholder .= openlayers_render_map($map);
-//  $map_placeholder .= openlayers_render_map('twitter_geo');
 
 //  $map_placeholder .= '<div class="openlayers-ui-style-preview-top"></div>';
 //  $map_placeholder .= '<div class="openlayers-ui-style-preview-left"></div>';
-  $map_placeholder .= '</div>';
+  $map_placeholder .= '<div class="description">' . t('Drag the map to aim.') . '</div></div>';
 
   $form['twitter_geo']['map'] = array(
     '#markup' => $map_placeholder,
@@ -239,7 +238,7 @@ function twitter_geo_search_form($form, &$form_state) {
   drupal_add_js(array('twitter_geo_google_map_div' => $div_id), 'setting');
   */
   drupal_add_js(drupal_get_path('module', 'twitter_geo') . '/twitter_geo.js', array('scope' => 'footer'));
-//  drupal_add_css(drupal_get_path('module', 'twitter_geo') . '/twitter.css');
+  drupal_add_css(drupal_get_path('module', 'twitter_geo') . '/twitter_search.css');
   return $form;
 }
 
