@@ -1,0 +1,22 @@
+#twitter-geo-search-form .form-item-term {
+  display: inline;
+}
+
+#twitter-geo-search-form .form-submit {
+  display: inline;
+  clear: right;
+}
+
+#twitter-geo-search-form .form-item-lang {
+  clear: both;
+  display: inline;
+  float: left;
+}
+
+#twitter-geo-search-form .form-item-distance {
+
+}
+
+label[for=edit-lang], label[for=edit-distance] {
+  display: inline;
+}
