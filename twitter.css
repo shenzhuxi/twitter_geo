@@ -23,3 +23,13 @@
   height: 48px;
 }
 
+.permalink-link {
+  float: right;
+  text-decoration: underline;
+  display: inline;
+}
+/*
+a.permalink-link:link {
+  text-decoration: underline;
+}
+*/

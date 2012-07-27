@@ -61,7 +61,7 @@ function twitter_geo_theme($existing, $type, $theme, $path) {
 }
 
 function theme_tweet($variables) {
-  //$url = drupal_get_destination();
+  //dpm($variables);
   $filrer = new stdClass();
   $filter->settings = array(
     'filter_url_length' => 140,
@@ -73,14 +73,17 @@ function theme_tweet($variables) {
   $output .= '<div class="tweet stream-item">';
   $output .= '<div class="content">';
   $output .= '<div class="stream-item-header">';
-  $output .= '<small class="time">' . l($variables['tweet']['created_at'], 'http://twitter.com/' . $variables['tweet']['from_user'] . '/status/' . $variables['tweet']['id']) . '</small>';
+  $link = 'http://twitter.com/' . $variables['tweet']['from_user'] . '/status/' . $variables['tweet']['id'];
+  $output .= '<small class="time">' . l(format_date(strtotime($variables['tweet']['created_at'])), $link)  . '</small>';
   $user = theme_image(array('path' => $variables['tweet']['profile_image_url'], 'attributes' => array('class' => 'avatar'))) . '<strong>' . $variables['tweet']['from_user_name'] . '</strong>' . ' <span class="username js-action-profile-name"><s>@</s><b>' . $variables['tweet']['from_user'] . '</b></span>';
   $output .= l($user, 'http://twitter.com/' . $variables['tweet']['from_user'], array('attributes' => array('target'=>'_blank'), 'html' => TRUE));
   $output .= '<p class="js-tweet-text">' . $tweet . '</p>';
+  $output .= '<div>';
   if (isset($variables['tweet']['location'] )){
-    $output .= '<div>Location: ' . $variables['tweet']['location'] . '</div>';
+    $output .= 'Location: ' . $variables['tweet']['location'];
   }
-  $output .= '</div>';
+  $output .= l(t('Details'), $link, array('attributes' => array('class' => 'permalink-link')));
+  $output .= '</div></div>';
   $output .= '</div>';
   $output .= '</div>';
   return $output;
