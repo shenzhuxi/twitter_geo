@@ -33,7 +33,7 @@ Drupal.behaviors.twitter_geo = {
   },
   'refresh': function(data) {
     //console.log(data);
-    data.openlayers.layers[4].removeAllFeatures();
+    data.openlayers.getLayersByName('Chrosshairs')[0].destroyFeatures();
     center = data.openlayers.getCenter();
     var circle = OpenLayers.Geometry.Polygon.createRegularPolygon(
       new OpenLayers.Geometry.Point(center.lon, center.lat),
@@ -42,9 +42,7 @@ Drupal.behaviors.twitter_geo = {
     );
     var attributes = {name: "my name", bar: "foo"};
     var feature = new OpenLayers.Feature.Vector(circle, attributes);
-
-    data.openlayers.layers[4].addFeatures([feature]);
-
+    data.openlayers.getLayersByName('Chrosshairs')[0].addFeatures([feature]);
   }
 };
 })(jQuery); 
