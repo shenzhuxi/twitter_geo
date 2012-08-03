@@ -78,11 +78,14 @@ function theme_tweet($variables) {
   $user = theme_image(array('path' => $variables['tweet']['profile_image_url'], 'attributes' => array('class' => 'avatar'))) . '<strong>' . $variables['tweet']['from_user_name'] . '</strong>' . ' <span class="username js-action-profile-name"><s>@</s><b>' . $variables['tweet']['from_user'] . '</b></span>';
   $output .= l($user, 'http://twitter.com/' . $variables['tweet']['from_user'], array('attributes' => array('target'=>'_blank'), 'html' => TRUE));
   $output .= '<p class="js-tweet-text">' . $tweet . '</p>';
-  $output .= '<div>';
+  $output .= '<div>Location: ';
   if (isset($variables['tweet']['location'] )){
-    $output .= 'Location: ' . $variables['tweet']['location'];
+    $output .= $variables['tweet']['location'];
   }
-  $output .= l(t('Details'), $link, array('attributes' => array('class' => 'permalink-link')));
+  else {
+    $output .= t('Unkown');
+  }
+  $output .= l(t('Details'), $link, array('attributes' => array('target' => '_blank', 'class' => 'permalink-link')));
   $output .= '</div></div>';
   $output .= '</div>';
   $output .= '</div>';

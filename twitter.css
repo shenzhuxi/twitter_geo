@@ -28,8 +28,11 @@
   text-decoration: underline;
   display: inline;
 }
-/*
+
 a.permalink-link:link {
   text-decoration: underline;
 }
-*/
+
+.js-action-profile-name s{
+  text-decoration: none;  
+}
