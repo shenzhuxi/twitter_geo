@@ -198,7 +198,7 @@ function twitter_geo_search_form($form, &$form_state) {
   );
   $form['twitter_geo']['zoom'] = array(
     '#type' => 'hidden',
-    '#value' => 9,
+    '#value' => isset($_GET['zoom']) ? $_GET['zoom'] : 9,
   );
 
   $form['twitter_geo']['distance'] = array(
@@ -257,7 +257,7 @@ function twitter_geo_search_form($form, &$form_state) {
   */
 //  drupal_add_js(drupal_get_path('module', 'twitter_geo') . '/NominatimSearch.js');
   drupal_add_js(drupal_get_path('module', 'twitter_geo') . '/twitter_geo.js', array('scope' => 'footer'));
-  drupal_add_css(drupal_get_path('module', 'twitter_geo') . '/twitter_search.css', array('scope' => 'footer'));
+  drupal_add_css(drupal_get_path('module', 'twitter_geo') . '/twitter_search.css');
   return $form;
 }
 
