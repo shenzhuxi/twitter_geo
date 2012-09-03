@@ -22,6 +22,9 @@ label[for=edit-lang], label[for=edit-distance] {
   display: inline;
 }
 
+#twitter_geo_map {
+  height: 400px;
+}
 /*
 .olControlPanel div { 
   display:block;
