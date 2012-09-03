@@ -1,49 +1,20 @@
 (function ($) {
-Drupal.behaviors.twitter_geo = {
-  'attach': function(context, settings) {
-    var data = $(context).data('openlayers');
-    if (data) {
-      //data.openlayers.zoomTo(1);
-      //data.openlayers.setCenter(new OpenLayers.LonLat(0,0),10);
-      var layer = new OpenLayers.Layer.Vector("Chrosshairs", {
-        displayInLayerSwitcher: 0,
-      });
-      data.openlayers.addLayer(layer);
-      Drupal.behaviors.twitter_geo.refresh(data);
-
-      $('select[name="distance"]').change(function() {
-        Drupal.behaviors.twitter_geo.refresh(data);
-      });
-
-      data.openlayers.events.register('zoomend', data.map, function() {
-        var zoom = data.openlayers.getZoom();
-        $('input[name="zoom"]').val(zoom);
-      });
-      data.openlayers.events.register('moveend', data.map, function() {
-        var center = data.openlayers.getCenter();
-        center.transform(new OpenLayers.Projection('EPSG:900913'), new OpenLayers.Projection('EPSG:4326'));
+  Drupal.behaviors.twitter_geo = {
+    attach: function(context, settings) {
+      var map = L.map('twitter_geo_map').setView([51.505, -0.09], 13);
+      L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18
+      }).addTo(map);
+      //var marker = L.marker([51.5, -0.09]).addTo(map);
+      map.on('dragend', drag);
+      //console.log(map);
+      function drag(e) {
+        center = map.getCenter();
         $('input[name="lat"]').val(center.lat);
-        $('input[name="lon"]').val(center.lon);
-        Drupal.openlayers.redrawVectors();
-      });
-      data.openlayers.events.register('move', data.map, function() {
-        Drupal.behaviors.twitter_geo.refresh(data);
-      });
+        $('input[name="lon"]').val(center.lng);
+        console.log(center);
+      }
     }
-  },
-  'refresh': function(data) {
-    //console.log(data);
-    data.openlayers.getLayersByName('Chrosshairs')[0].destroyFeatures();
-    center = data.openlayers.getCenter();
-    var circle = OpenLayers.Geometry.Polygon.createRegularPolygon(
-      new OpenLayers.Geometry.Point(center.lon, center.lat),
-      $('select[name="distance"]').val() * 1609.34,
-      32
-    );
-    var attributes = {name: "my name", bar: "foo"};
-    var feature = new OpenLayers.Feature.Vector(circle, attributes);
-    data.openlayers.getLayersByName('Chrosshairs')[0].addFeatures([feature]);
   }
-};
 })(jQuery); 
 

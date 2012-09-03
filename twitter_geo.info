@@ -2,6 +2,6 @@ name = Twitter Geo
 description = Add geo location functions to twitter module
 core = 7.x
 dependencies[] = filter
-dependencies[] = openlayers
-dependencies[] = ip_geoloc
+;dependencies[] = openlayers
+;dependencies[] = ip_geoloc
 
