@@ -228,10 +228,10 @@ function twitter_geo_search_form($form, &$form_state) {
   */
   drupal_add_css('http://leaflet.cloudmade.com/dist/leaflet.css', array('type' => 'external'));
   drupal_add_js ('http://leaflet.cloudmade.com/dist/leaflet.js');//, array('scope' => 'footer'));
-
+  drupal_add_js(drupal_get_path('module', 'twitter_geo') . '/leaflet-control-bing-geocoder/Control.BingGeocoder.js');
+  drupal_add_css(drupal_get_path('module', 'twitter_geo') . '/leaflet-control-bing-geocoder/Control.BingGeocoder.css');
   $map_placeholder = '<div id="twitter_geo_map"></div>';//leaflet_render_map('OSM Twitter');
-  //drupal_add_js(drupal_get_path('module', 'twitter_geo') . '/twitter_geo.js');//, array('scope' => 'footer'));
-
+  
   /*
   $map_placeholder .= '<div class="twitter_geo_map">';
   $map = twitter_geo_map(isset($_GET['lat']) ? $_GET['lat'] : $lat, isset($_GET['lon']) ? $_GET['lon'] : $lon); 

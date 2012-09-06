@@ -6,31 +6,30 @@
         maxZoom: 18
       }).addTo(map);
       var marker = L.marker(map.getCenter()).addTo(map);
+      
+      var circle = L.circle(map.getCenter(), $('select[name="distance"]').val() * 1609.34, {
+        color: 'red',
+        fillColor: '#f03',
+        fillOpacity: 0.5
+      }).addTo(map);
 
-        var circle = L.circle(map.getCenter(), $('select[name="distance"]').val() * 1609.34, {
-          color: 'red',
-          fillColor: '#f03',
-          fillOpacity: 0.5
-        }).addTo(map);
+      var bingGeocoder = new L.Control.BingGeocoder('An9auThQS3CFxoV9R8MbPnEyZzX8Qgf2KQxInr2dR5BS8WQYDp784jI63NGF-y1Z', {collapsed: false});
+      map.addControl(bingGeocoder);
 
       refresh();
-      map.on('drag', drag);
+      //map.on('drag', drag);
       map.on('move', refresh);
       map.on('moveend', refresh);
+      //map.on('zoomend', refresh);
+
       $('select[name="distance"]').change(function() {
         refresh();
       });
 
-      //console.log(map);
-      function drag(e) {
+      function refresh() {
         center = map.getCenter();
         $('input[name="lat"]').val(center.lat);
         $('input[name="lon"]').val(center.lng);
-        refresh();
-        //console.log(center);
-      }
-
-      function refresh() {
         $('input[name="zoom"]').val(map.getZoom());
         circle.setLatLng(map.getCenter());
         circle.setRadius($('select[name="distance"]').val() * 1609.34);
