@@ -25,6 +25,11 @@ label[for=edit-lang], label[for=edit-distance] {
 #twitter_geo_map {
   height: 400px;
 }
+
+.leaflet-control-container { 
+  z-index: 4; 
+}
+
 /*
 .olControlPanel div { 
   display:block;
