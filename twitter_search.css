@@ -26,10 +26,13 @@ label[for=edit-lang], label[for=edit-distance] {
   height: 400px;
 }
 
-.leaflet-control-container { 
-  z-index: 4; 
+.leaflet-control form {
+  margin: 0px;
 }
 
+.leaflet-control-geocoder input[type=text] {
+  width: 100px;
+}
 /*
 .olControlPanel div { 
   display:block;
