@@ -1,7 +1,11 @@
 (function ($) {
   Drupal.behaviors.twitter_geo = {
     attach: function(context, settings) {
-      var map = L.map('twitter_geo_map').setView([$('input[name="lat"]').val(), $('input[name="lon"]').val()], $('input[name="zoom"]').val());
+      var map = L.map('twitter_geo_map', {
+        //center: [51.505, -0.09],
+        minZoom: 1,
+      });
+      map.setView([$('input[name="lat"]').val(), $('input[name="lon"]').val()], $('input[name="zoom"]').val());
       L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 18
       }).addTo(map);
