@@ -17,7 +17,7 @@
         fillOpacity: 0.5
       }).addTo(map);
 
-      var bingGeocoder = new L.Control.BingGeocoder('An9auThQS3CFxoV9R8MbPnEyZzX8Qgf2KQxInr2dR5BS8WQYDp784jI63NGF-y1Z', {collapsed: false});
+      var bingGeocoder = new L.Control.BingGeocoder('ArSsBzViQeHdmrTqsbmxQ6vrhsEStGnR6tmGjO7l8mOJsxFxDqJm5qu2cCep2vCR', {collapsed: false});
       map.addControl(bingGeocoder);
 
       refresh();
