@@ -1,5 +1,5 @@
 name = Twitter Geo
-description = Add geo location functions to twitter module
+description = Use Twitter API to seach tweets based on location
 core = 7.x
 dependencies[] = filter
 

@@ -179,22 +179,22 @@ function twitter_geo_search_form($form, &$form_state) {
     '#default_value' => isset($_GET['lang']) ? $_GET['lang'] : '0',
     //'#description' => t('Select language'),
   );
-  $lat = isset($_SESSION['ip_geoloc']['location']['latitude']) ? $_SESSION['ip_geoloc']['location']['latitude'] : (isset($_SESSION['smart_ip']['location']['latitude']) ? $_SESSION['smart_ip']['location']['latitude'] : '0');
-  $lon = isset($_SESSION['ip_geoloc']['location']['longitude']) ? $_SESSION['ip_geoloc']['location']['longitude'] : (isset($_SESSION['smart_ip']['location']['longitude']) ? $_SESSION['smart_ip']['location']['longitude'] : '0');
+  if (isset($_SESSION['smart_ip']['location']['latitude']) && isset($_SESSION['smart_ip']['location']['longitude'])) {
+    $lat = $_SESSION['smart_ip']['location']['latitude'];
+    $lon = $_SESSION['smart_ip']['location']['longitude'];
+  }
+  else {
+    $lat = 0;
+    $lon = 0;
+  }
 
   $form['twitter_geo']['lat'] = array(
     '#type' => 'hidden', 
     '#default_value' => isset($_GET['lat']) ? $_GET['lat'] : $lat,
-//    '#size' => 10, 
-//    '#title' => t('Latitude'), 
-//    '#description' => t('Mile(s)'),
   );
   $form['twitter_geo']['lon'] = array(
     '#type' => 'hidden', 
     '#default_value' => isset($_GET['lon']) ? $_GET['lon'] : $lon,
-//    '#size' => 10,
-//    '#title' => t('Longitude'), 
-//    '#description' => t('Mile(s)'),
   );
   $form['twitter_geo']['zoom'] = array(
     '#type' => 'hidden',
@@ -301,9 +301,8 @@ function twitter_geo_search_page() {
 }
 
 function twitter_geo_map($latitude, $longitude) {
-  $latitude = isset($_GET['latitude']) ? $_GET['latitude'] : (isset($_SESSION['ip_geoloc']['location']['latitude']) ? $_SESSION['ip_geoloc']['location']['latitude'] : (isset($_SESSION['smart_ip']['location']['latitude']) ? $_SESSION['smart_ip']['location']['latitude'] : '0'));
-  $longitude = isset($_GET['longitude']) ? $_GET['longitude'] : (isset($_SESSION['ip_geoloc']['location']['longitude']) ? $_SESSION['ip_geoloc']['location']['longitude'] : (isset($_SESSION['smart_ip']['location']['longitude']) ? $_SESSION['smart_ip']['location']['longitude'] : '0'));
-//  dpm($latitude . ', '. $longitude);
+  $latitude = isset($_GET['latitude']) ? $_GET['latitude'] : (isset($_SESSION['smart_ip']['location']['latitude']) ? $_SESSION['smart_ip']['location']['latitude'] : '0');
+  $longitude = isset($_GET['longitude']) ? $_GET['longitude'] : (isset($_SESSION['smart_ip']['location']['longitude']) ? $_SESSION['smart_ip']['location']['longitude'] : '0');
   $items = array();
   $openlayers_maps = new stdClass();
   $openlayers_maps->disabled = FALSE; /* Edit this to true to make a default openlayers_maps disabled initially */
