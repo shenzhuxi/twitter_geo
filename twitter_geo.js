@@ -17,8 +17,8 @@
         fillOpacity: 0.5
       }).addTo(map);
       
-      //var bingGeocoder = new L.Control.BingGeocoder('ArSsBzViQeHdmrTqsbmxQ6vrhsEStGnR6tmGjO7l8mOJsxFxDqJm5qu2cCep2vCR', {collapsed: false});
-      //map.addControl(bingGeocoder);
+      var OSMGeocoder = new L.Control.OSMGeocoder({collapsed: false});
+      map.addControl(OSMGeocoder);
 
       refresh();
       //map.on('drag', drag);

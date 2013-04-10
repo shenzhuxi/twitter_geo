@@ -1,12 +1,13 @@
-L.Control.BingGeocoder = L.Control.extend({
+L.Control.OSMGeocoder = L.Control.extend({
 	options: {
 		collapsed: true,
 		position: 'topright',
 		text: 'Locate',
 		callback: function (results) {
-			var bbox = results.resourceSets[0].resources[0].bbox,
-				first = new L.LatLng(bbox[0], bbox[1]),
-				second = new L.LatLng(bbox[2], bbox[3]),
+      console.log(results);
+			var bbox = results[0].boundingbox,
+				first = new L.LatLng(bbox[0], bbox[2]),
+				second = new L.LatLng(bbox[1], bbox[3]),
 				bounds = new L.LatLngBounds([first, second]);
 			this._map.fitBounds(bounds);
 		}
@@ -14,8 +15,7 @@ L.Control.BingGeocoder = L.Control.extend({
 
 	_callbackId: 0,
 
-	initialize: function (key, options) {
-		this.key = key;
+	initialize: function (options) {
 		L.Util.setOptions(this, options);
 	},
 
@@ -46,7 +46,7 @@ L.Control.BingGeocoder = L.Control.extend({
 
 			var link = this._layersLink = L.DomUtil.create('a', className + '-toggle', container);
 			link.href = '#';
-			link.title = 'Bing Geocoder';
+			link.title = 'Nominatim Geocoder';
 
 			L.DomEvent.addListener(link, L.Browser.touch ? 'click' : 'focus', this._expand, this);
 
@@ -62,16 +62,18 @@ L.Control.BingGeocoder = L.Control.extend({
 
 	_geocode : function (event) {
 		L.DomEvent.preventDefault(event);
-		this._callbackId = "_l_binggeocoder_" + (this._callbackId++);
+    //http://wiki.openstreetmap.org/wiki/Nominatim
+		this._callbackId = "_l_osmgeocoder_" + (this._callbackId++);
 		window[this._callbackId] = L.Util.bind(this.options.callback, this);
 
 		var params = {
-			query: this._input.value,
-			key : this.key,
-			jsonp : this._callbackId
+			q: this._input.value,
+			json_callback : this._callbackId,
+      format: 'json'
 		},
-		url = "http://dev.virtualearth.net/REST/v1/Locations" + L.Util.getParamString(params),
+		url = " http://nominatim.openstreetmap.org/search" + L.Util.getParamString(params),
 		script = document.createElement("script");
+
 
 		script.type = "text/javascript";
 		script.src = url;
