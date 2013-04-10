@@ -240,7 +240,7 @@ function twitter_geo_search_form($form, &$form_state) {
 
 //  $map_placeholder .= '<div class="openlayers-ui-style-preview-top"></div>';
 //  $map_placeholder .= '<div class="openlayers-ui-style-preview-left"></div>';
-  $map_placeholder .= '<div class="description">' . t('Drag the map to aim.') . '</div></div>';
+  $map_placeholder .= '<div class="description">' . t('Drag the map to target area.') . '</div></div>';
 
   $form['twitter_geo']['map'] = array(
     '#markup' => $map_placeholder,
