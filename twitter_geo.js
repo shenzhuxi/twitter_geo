@@ -16,9 +16,9 @@
         fillColor: '#f03',
         fillOpacity: 0.5
       }).addTo(map);
-      /*
-      var bingGeocoder = new L.Control.BingGeocoder('ArSsBzViQeHdmrTqsbmxQ6vrhsEStGnR6tmGjO7l8mOJsxFxDqJm5qu2cCep2vCR', {collapsed: false});
-      map.addControl(bingGeocoder);
+      
+      //var bingGeocoder = new L.Control.BingGeocoder('ArSsBzViQeHdmrTqsbmxQ6vrhsEStGnR6tmGjO7l8mOJsxFxDqJm5qu2cCep2vCR', {collapsed: false});
+      //map.addControl(bingGeocoder);
 
       refresh();
       //map.on('drag', drag);
@@ -38,7 +38,6 @@
         circle.setLatLng(map.getCenter());
         circle.setRadius($('select[name="distance"]').val() * 1609.34);
       }
-      */
     }
   }
 })(jQuery); 
